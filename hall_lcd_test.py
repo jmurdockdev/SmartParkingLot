@@ -2,6 +2,7 @@
 import time
 import datetime
 import RPi.GPIO as GPIO
+import numpy
 
 #   LCD SETUP
 # Define GPIO to LCD mapping
@@ -25,6 +26,8 @@ LCD_LINE_2 = 0xC0 # LCD RAM address for the 2nd line
 E_PULSE = 0.0005
 E_DELAY = 0.0005
 
+SPOTS = numpy.zeros(10)
+
 
 #def manipulateArray(pin):
 
@@ -38,17 +41,104 @@ def sensorCallback(channel):
   if GPIO.input(channel):
     # No magnet
     # MANIPULATE ARRAY
+    if channel == 17:
+      SPOTS[0]= 0
+    elif channel == 23:
+      SPOTS[1] = 0
+    elif channel == 21:
+      SPOTS[2] = 0
+    elif channel == 18:
+      SPOTS[3] = 0
+    elif channel == 27:
+      SPOTS[4] = 0
+    elif channel == 25:
+      SPOTS[5]= 0
+    elif channel == 22:
+      SPOTS[6] = 0
+    elif channel == 20:
+      SPOTS[7] = 0
+    elif channel == 16:
+      SPOTS[8] = 0
+    elif channel == 12:
+      SPOTS[9] = 0
+
     print("Space " + str(channel) + " EMPTY " + stamp)
   else:
-    # Magnet
+    # Magnet present
+    if channel == 17:
+      SPOTS[0]= 1
+    elif channel == 23:
+      SPOTS[1] = 1
+    elif channel == 21:
+      SPOTS[2] = 1
+    elif channel == 18:
+      SPOTS[3] = 1
+    elif channel == 27:
+      SPOTS[4] = 1
+    elif channel == 25:
+      SPOTS[5]= 1
+    elif channel == 22:
+      SPOTS[6] = 1
+    elif channel == 20:
+      SPOTS[7] = 1
+    elif channel == 16:
+      SPOTS[8] = 1
+    elif channel == 12:
+      SPOTS[9] = 1
+
+
     print("Space " + str(channel) + " OCCUPIED " + stamp)
 
 def buttonPress(channel):
-  print("Button Pressed!!!!!")
-  lcd_string("Hey.",LCD_LINE_1)
-  lcd_string("",LCD_LINE_2)
-  time.sleep(3) # 3 second delay
-  lcd_string("", LCD_LINE_1)
+  timestamp = time.time()
+  stamp = datetime.datetime.fromtimestamp(timestamp).strftime('%H:%M:%S')
+  print("Button Pressed")
+  i = 0
+  spotOpenFlag = False
+  for spot in SPOTS:
+    if spot == 0:
+      spotOpenFlag = True
+      break
+    i = i + 1
+
+  spotString = ""
+  if i == 0:
+    spotString = "Park in spot 1"
+  elif i == 1:
+    spotString = "Park in spot 2"
+  elif i == 2:
+    spotString = "Park in spot 3"
+  elif i == 3:
+    spotString = "Park in spot 4"
+  elif i == 4:
+    spotString = "Park in spot 5"
+  elif i == 5:
+    spotString = "Park in spot 6"
+  elif i == 6:
+    spotString = "Park in spot 7"
+  elif i == 7:
+    spotString = "Park in spot 8"
+  elif i == 8:
+    spotString = "Park in spot 9"
+  elif i == 9:
+    spotString = "Park in spot 10"
+
+
+  # Output reccomendation
+  if not spotOpenFlag:
+    lcd_string("Lot is FULL", LCD_LINE_1)
+    lcd_string("Come again later",LCD_LINE_2)
+    time.sleep(3) # 3 second delay
+    lcd_string("", LCD_LINE_1)
+    lcd_string("",LCD_LINE_2)
+  else:
+    lcd_string(spotString,LCD_LINE_1)
+    lcd_string(stamp,LCD_LINE_2)
+    time.sleep(3) # 3 second delay
+    lcd_string("", LCD_LINE_1)
+    lcd_string("",LCD_LINE_2)
+
+
 
 def main():
   # Wrap main content in a try block so we can
@@ -58,16 +148,31 @@ def main():
   # messages.
 
   spot1 = 17
+  spot2 = 23
   spot3 = 21
+  spot4 = 18
+  spot5 = 27
+  spot6 = 25
+  spot7 = 22
+  spot8 = 20
   spot9 = 16
+  spot10 = 12
+
   # Get initial reading
   sensorCallback(spot1)
+  sensorCallback(spot2)
   sensorCallback(spot3)
+  sensorCallback(spot4)
+  sensorCallback(spot5)
+  sensorCallback(spot6)
+  sensorCallback(spot7)
+  sensorCallback(spot8)
   sensorCallback(spot9)
+  sensorCallback(spot10)
   #button press
   buttonPress(4)
 
-
+  # Initialise display
   lcd_init()
 
 
@@ -98,20 +203,50 @@ GPIO.setup(LCD_D6, GPIO.OUT) # DB6
 GPIO.setup(LCD_D7, GPIO.OUT) # DB7
 
 
-# Initialise display
+
 
 
 #GPIO 17 SPOT 1
 GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.add_event_detect(17, GPIO.BOTH, callback=sensorCallback, bouncetime=200)
 
+#GPIO 23 SPOT 2
+GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(23, GPIO.BOTH, callback=sensorCallback, bouncetime=200)
+
 # GPIO 21 SPOT 3
 GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.add_event_detect(21, GPIO.BOTH, callback=sensorCallback, bouncetime=200)
 
+#GPIO 18 SPOT 4
+GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(18, GPIO.BOTH, callback=sensorCallback, bouncetime=200)
+
+#GPIO 27 SPOT 5
+GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(27, GPIO.BOTH, callback=sensorCallback, bouncetime=200)
+
+#GPIO 25 SPOT 6
+GPIO.setup(25, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(25, GPIO.BOTH, callback=sensorCallback, bouncetime=200)
+
+#GPIO 22 SPOT 7
+GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(22, GPIO.BOTH, callback=sensorCallback, bouncetime=200)
+
+#GPIO 20 SPOT 8
+GPIO.setup(20, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(20, GPIO.BOTH, callback=sensorCallback, bouncetime=200)
+
 #GPIO 16 SPOT 9
 GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.add_event_detect(16, GPIO.BOTH, callback=sensorCallback, bouncetime=200)
+
+#GPIO 12 SPOT 10
+GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(12, GPIO.BOTH, callback=sensorCallback, bouncetime=200)
+
+
 
 #Buttton Press
 GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
